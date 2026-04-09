@@ -21,7 +21,6 @@
         .result { text-align: center; font-size: 1.2rem; color: #333; line-height: 1.6; margin-bottom: 20px;}
         .restart-btn { width: 100%; padding: 14px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; }
         
-        /* 오답 노트 전용 디자인 추가 */
         .wrong-note-container { margin-top: 20px; text-align: left; background: #fff3f3; padding: 15px; border-radius: 8px; border: 1px solid #ffc8c8; margin-bottom: 20px;}
         .wrong-note-title { font-size: 1.1rem; font-weight: bold; color: #d9534f; margin-bottom: 10px; }
         .wrong-item { margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ffc8c8; font-size: 0.95rem; line-height: 1.5; }
@@ -73,7 +72,7 @@
         { word: "염두", meaning: "생각의 시초" },
         { word: "염하다", meaning: "값이 싸다" },
         { word: "시쳇", meaning: "요즘 (ex.시쳇 사람들, 시쳇말)" },
-        { word: "변리", 단어: "남에게 돈을 빌려 쓴 대가로 치르는 일정한 비율의 돈" },
+        { word: "변리", meaning: "남에게 돈을 빌려 쓴 대가로 치르는 일정한 비율의 돈" },
         { word: "도시", meaning: "아무리 해도, 도무지" },
         { word: "응과", meaning: "노력에 대한 결실" },
         { word: "소출", meaning: "논밭에서 나는 곡식, 또는 그 곡식의 양" },
@@ -148,7 +147,7 @@
     let currentQuizList = [];
     let currentQuestionIndex = 0;
     let score = 0;
-    let wrongAnswers = []; // 오답을 저장할 배열 추가
+    let wrongAnswers = []; 
 
     const progressText = document.getElementById('progressText');
     const meaningText = document.getElementById('meaningText');
@@ -171,7 +170,7 @@
         currentQuizList = shuffledWords.slice(0, TOTAL_QUESTIONS); 
         currentQuestionIndex = 0;
         score = 0;
-        wrongAnswers = []; // 새 퀴즈 시작 시 오답 초기화
+        wrongAnswers = []; 
         quizHeader.style.display = 'flex';
         loadQuestion();
     }
@@ -204,7 +203,6 @@
         });
     }
 
-    // 함수에 meaning 파라미터 추가
     function checkAnswer(selectedWord, correctWord, selectedBtn, currentMeaning) {
         const allOptions = optionsContainer.querySelectorAll('.option');
         allOptions.forEach(btn => btn.disabled = true);
@@ -218,7 +216,6 @@
             feedback.className = 'feedback correct';
             feedback.innerHTML = "<b>⭕ 정답입니다!</b>";
         } else {
-            // 틀린 문제 정보를 배열에 저장
             wrongAnswers.push({
                 meaning: currentMeaning,
                 userChoice: selectedWord,
@@ -256,4 +253,49 @@
     function showResult() {
         quizHeader.style.display = 'none';
         
-        // 1. 기본 점수 화면
+        let resultHTML = `
+            <div class="result">
+                🎉 수고하셨습니다!<br><br>
+                총 ${TOTAL_QUESTIONS}문제 중<br>
+                <span style="font-size:2rem; color:#007bff; font-weight:bold;">${score}</span> 문제를 맞혔습니다.
+            </div>
+        `;
+
+        if (wrongAnswers.length > 0) {
+            let wrongHTML = `
+                <div class="wrong-note-container">
+                    <div class="wrong-note-title">📝 오답 노트</div>
+            `;
+            
+            wrongAnswers.forEach((item) => {
+                wrongHTML += `
+                    <div class="wrong-item">
+                        <div class="w-meaning">Q. "${item.meaning}"</div>
+                        <div>
+                            <span class="w-user">내 선택: ${item.userChoice}</span>
+                            <span class="w-correct">정답: ${item.correct}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            wrongHTML += `</div>`;
+            resultHTML += wrongHTML;
+        } else {
+            resultHTML += `
+                <div class="perfect-score">
+                    <div class="perfect-score-title">💯 만점입니다! 완벽하게 외우셨네요!</div>
+                </div>
+            `;
+        }
+
+        resultHTML += `
+            <button class="restart-btn" onclick="location.reload()">새로운 문제로 다시 풀기</button>
+        `;
+
+        questionArea.innerHTML = resultHTML;
+    }
+
+    startQuiz();
+</script>
+</body>
+</html>
